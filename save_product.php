@@ -4,12 +4,17 @@ ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 include 'db_connection.php';
+include 'admin_sidebar.php';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $name = isset($_POST['name']) ? trim($_POST['name']) : null;
     $description = isset($_POST['description']) ? trim($_POST['description']) : null;
     $category_id = isset($_POST['category']) ? intval($_POST['category']) : null;
     $branding_option = isset($_POST['branding_option']) ? trim($_POST['branding_option']) : null;
+    $logo_hex_color = isset($_POST['hex_color']) ? trim($_POST['hex_color']) : '#FFFFFF';
+    
+    $logo_width = isset($_POST['logo_width']) ? intval($_POST['logo_width']) : null;
+    $logo_height = isset($_POST['logo_height']) ? intval($_POST['logo_height']) : null;
 
     $imagePath = null;
     $logoPath = null;
@@ -32,54 +37,46 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $logoPath = 'uploads/' . uniqid('logo_', true) . '.' . pathinfo($logo, PATHINFO_EXTENSION);
 
         if (!move_uploaded_file($_FILES['logo']['tmp_name'], $logoPath)) {
+            $logoWidth = $dimensions['width'];
+            $logoHeight = $dimensions['height'];
+            
+            
             die("Error: Failed to upload the logo.");
         }
     }
 
-    // Fetch and validate logo positions from hidden input field
+    // Fetch and validate logo positions
     if (isset($_POST['logo_position']) && !empty($_POST['logo_position'])) {
         $logo_positions = $_POST['logo_position'];
-
         $decoded_positions = json_decode($logo_positions, true);
         if (json_last_error() !== JSON_ERROR_NONE || !is_array($decoded_positions)) {
             die("Error: Invalid logo position data.");
         }
 
-        // Debugging: Log the received positions
-        error_log("Logo Position Data: " . print_r($decoded_positions, true));
-
-        // Reformat and encode the positions for database storage
         $formatted_positions = [
             'top' => floatval($decoded_positions['top']),
             'left' => floatval($decoded_positions['left'])
         ];
-
         $logo_positions = json_encode($formatted_positions);
     }
 
-    // Fetch and validate logo styles from hidden input field
+    // Fetch and validate logo styles
     if (isset($_POST['logo_styles']) && !empty($_POST['logo_styles'])) {
         $logo_styles = $_POST['logo_styles'];
-
         $decoded_styles = json_decode($logo_styles, true);
         if (json_last_error() !== JSON_ERROR_NONE || !is_array($decoded_styles)) {
             die("Error: Invalid logo styles data.");
         }
-
-        // Debugging: Log the received styles
-        error_log("Logo Styles Data: " . print_r($decoded_styles, true));
-
-        // Reformat and encode the styles for database storage if needed
         $logo_styles = json_encode($decoded_styles);
     }
 
     if (isset($_POST['product_id']) && !empty($_POST['product_id'])) {
         // Update existing product
         $product_id = intval($_POST['product_id']);
-        $query = "UPDATE products SET name = ?, description = ?, categories = ?, branding_options = ?";
+        $query = "UPDATE products SET name = ?, description = ?, categories = ?, branding_options = ?, logo_hex_color = ?, logo_width = ?, logo_height = ?";
 
-        $params = [$name, $description, $category_id, $branding_option];
-        $types = "ssss";
+        $params = [$name, $description, $category_id, $branding_option, $logo_hex_color, $logo_width, $logo_height];
+        $types = "sssss";
 
         if ($imagePath !== null) {
             $query .= ", featured_image = ?";
@@ -109,18 +106,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if ($stmt === false) {
             die("Error: Failed to prepare the query - " . $conn->error);
         }
-        $stmt->bind_param($types, ...$params);
-    } else {
+        $stmt->bind_param($types, ...$params); 
+    } else { 
         // Insert new product
-        $stmt = $conn->prepare("INSERT INTO products (name, description, featured_image, categories, logo_positions, branding_options, logo_styles, logo_path) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
+        $stmt = $conn->prepare("INSERT INTO products (name, description, featured_image, categories, logo_positions, branding_options, logo_styles, logo_path, logo_hex_color, logo_width,logo_height) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
         if ($stmt === false) {
             die("Error: Failed to prepare the query - " . $conn->error);
         }
-        $stmt->bind_param('ssssssss', $name, $description, $imagePath, $category_id, $logo_positions, $branding_option, $logo_styles, $logoPath);
+
+        $stmt->bind_param('sssssssssss', $name, $description, $imagePath, $category_id, $logo_positions, $branding_option, $logo_styles, $logoPath, $logo_hex_color, $logo_width, $logo_height);
     }
 
-    if ($stmt->execute()) {
-        echo "Product saved successfully! <a href='index.php'>Go Back</a>";
+    if ($stmt->execute()) { 
+        echo "Product saved successfully! <a href='product_list.php'>Go Back</a>";
     } else {
         echo "Error: " . $stmt->error;
     }

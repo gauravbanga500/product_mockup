@@ -15,7 +15,8 @@
             <li><a href="product_list.php">Products</a></li>
             <li><a href="category_list.php">Categories</a></li>
             <li><a href="list_templates.php">Templates</a></li>
-            <li><a href="user_list.php">Users</a></li>
+            <li><a href="user.php">Users</a></li>
+            <li><a href="logout.php" class="text-danger">Logout</a></li>
         </ul>
     </div>
     <div class="admin-content">

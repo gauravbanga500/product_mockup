@@ -1,4 +1,5 @@
 <?php
+
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
@@ -30,9 +31,22 @@ if (!move_uploaded_file($logo, $logo_path)) {
     die('Error: Failed to upload logo.');
 }
 
-// Function to apply branding effect to the logo
-function applyBrandingEffect($logo_path, $branding_option) {
+function hexToRgb($hexColor) {
+    $hexColor = ltrim($hexColor, '#');
+    if (strlen($hexColor) == 3) {
+        $hexColor = $hexColor[0] . $hexColor[0] . $hexColor[1] . $hexColor[1] . $hexColor[2] . $hexColor[2];
+    }
+    return [
+        hexdec(substr($hexColor, 0, 2)),
+        hexdec(substr($hexColor, 2, 2)),
+        hexdec(substr($hexColor, 4, 2))
+    ];
+}
+
+function applyBrandingEffect($logo_path, $hex_color, $product_id = null) {
+    $product_id = $product_id ?? uniqid();
     $logo_image = imagecreatefrompng($logo_path);
+
     if (!$logo_image) {
         die('Error: Invalid logo image.');
     }
@@ -40,48 +54,30 @@ function applyBrandingEffect($logo_path, $branding_option) {
     $width = imagesx($logo_image);
     $height = imagesy($logo_image);
 
-    // Create a blank image to apply effects
     $output_image = imagecreatetruecolor($width, $height);
     imagesavealpha($output_image, true);
-    $transparent = imagecolorallocatealpha($output_image, 0, 0, 0, 127);
+    $transparent = imagecolorallocatealpha($output_image, 255, 255, 255, 127);
     imagefill($output_image, 0, 0, $transparent);
 
-    // Apply color effect
-    switch ($branding_option) {
-        case 'digital-uv-printing':
-            $color = imagecolorallocate($output_image, 255, 0, 0); // Red
-            break;
-        case 'golden-embossing':
-            $color = imagecolorallocate($output_image, 255, 215, 0); // Gold
-            break;
-        case 'silver-embossing':
-            $color = imagecolorallocate($output_image, 192, 192, 192); // Silver
-            break;
-        case 'logo-effect-laser-engraving':
-            $color = imagecolorallocate($output_image, 128, 128, 128); // Gray
-            break;
-        case 'blind-embossing':
-            $color = imagecolorallocate($output_image, 211, 211, 211); // Light Gray
-            break;
-        default:
-            $color = null; // No color change
+    if (!$hex_color) {
+        $hex_color = '#ffffff';
     }
 
-    if ($color) {
-        for ($x = 0; $x < $width; $x++) {
-            for ($y = 0; $y < $height; $y++) {
-                $pixel_color = imagecolorsforindex($logo_image, imagecolorat($logo_image, $x, $y));
-                if ($pixel_color['alpha'] < 127) {
-                    imagesetpixel($output_image, $x, $y, $color);
-                }
+    list($r, $g, $b) = hexToRgb($hex_color);
+    $color = imagecolorallocate($output_image, $r, $g, $b);
+
+    for ($x = 0; $x < $width; $x++) {
+        for ($y = 0; $y < $height; $y++) {
+            $pixel_color = imagecolorsforindex($logo_image, imagecolorat($logo_image, $x, $y));
+            if ($pixel_color['alpha'] < 127) {
+                imagesetpixel($output_image, $x, $y, $color);
             }
         }
-    } else {
-        imagecopy($output_image, $logo_image, 0, 0, 0, 0, $width, $height);
     }
 
-    $processed_logo_path = str_replace('.png', '_processed_' . $branding_option . '.png', $logo_path);
+    $processed_logo_path = str_replace('.png', "_processed_$product_id.png", $logo_path);
     imagepng($output_image, $processed_logo_path);
+
     imagedestroy($logo_image);
     imagedestroy($output_image);
 
@@ -109,11 +105,21 @@ if ($products->num_rows === 0) {
     die('Error: No products found.');
 }
 
+$template_query = $conn->query("SELECT * FROM templates LIMIT 1");
+$template = $template_query->fetch_assoc();
+
 // Custom FPDF class with rotation support
-class PDF extends FPDF {
+class PDF extends FPDF
+{
     protected $angle = 0;
 
-    function Rotate($angle, $x = -1, $y = -1) {
+    public function __construct()
+    {
+        parent::__construct('P', 'pt', [1000, 1000]);
+    }
+
+    public function Rotate($angle, $x = -1, $y = -1)
+    {
         if ($x == -1) {
             $x = $this->x;
         }
@@ -125,117 +131,158 @@ class PDF extends FPDF {
         }
         $this->angle = $angle;
         if ($angle != 0) {
-            $angle_rad = $angle * M_PI / 180;
-            $c = cos($angle_rad);
-            $s = sin($angle_rad);
+            $angle *= M_PI / 180;
+            $c = cos($angle);
+            $s = sin($angle);
             $cx = $x * $this->k;
             $cy = ($this->h - $y) * $this->k;
-            $this->_out(sprintf('q %.5F %.5F %.5F %.5F %.5F %.5F cm 1 0 0 1 %.5F %.5F cm', $c, $s, -$s, $c, $cx, $cy, -$cx, -$cy));
+            $this->_out(sprintf('q %.2F %.2F %.2F %.2F %.2F %.2F cm 1 0 0 1 %.2F %.2F cm', $c, $s, -$s, $c, $cx, $cy, -$cx, -$cy));
         }
     }
 
-    function _endpage() {
-        if ($this->angle != 0) {
-            $this->angle = 0;
-            $this->_out('Q');
-        }
-        parent::_endpage();
+    public function RotatedImage($file, $x, $y, $w, $h, $angle)
+    {
+        $this->Rotate($angle, $x + $w / 2, $y + $h / 2);
+        $this->Image($file, $x, $y, $w, $h);
+        $this->Rotate(0);
     }
+
+    public function Footer()
+    {
+        $this->SetY(-15);
+        $this->SetFont('Arial', 'I', 8);
+        $this->Cell(0, 10, 'Page ' . $this->PageNo(), 0, 0, 'C');
+    }
+
 }
 
-// Generate PDF
-$pdf = new PDF('P', 'mm', [1000, 1000]);
+// Create a new PDF instance
+$pdf = new PDF();
+
 $pdf->SetFont('Arial', 'B', 16);
 
-// Retrieve templates
-$template_query = $conn->query("SELECT * FROM templates LIMIT 1");
-$template = $template_query->fetch_assoc();
+$page_width = $pdf->GetPageWidth();
+$page_height = $pdf->GetPageHeight();
 
-if ($template) {
-    $pdf->AddPage();
-    $pdf->Image($template['first_template'], 0, 0, 1000, 1000);
+$i = 0;
+
+
+// Define standard DPI for conversion
+define('DPI', 96); // Assuming 96 DPI as standard for image rendering
+function pxToMm($px) {
+    return $px * 25.4 / DPI; // Conversion factor for pixels to millimeters
 }
 
-// Process each product
+if ($template) {
+    $i++;
+    $pdf->AddPage();
+    $pdf->Image($template['first_template'], 0, 5, $page_width, 0);
+
+    // Fetch logo dimensions from database
+    $sql_logo_dimensions = "SELECT logo_width, logo_height FROM products WHERE id IN ($product_ids) LIMIT 1";
+    $logo_dimensions_result = $conn->query($sql_logo_dimensions);
+    $logo_dimensions = $logo_dimensions_result->fetch_assoc();
+
+    if ($logo_dimensions) {
+        // Convert dimensions from pixels to mm
+        $logoWidthMm = pxToMm($logo_dimensions['logo_width']);
+        $logoHeightMm = pxToMm($logo_dimensions['logo_height']);
+
+        // Set dynamic logo position (keeping margins)
+        $logoX = ($page_width - $logoWidthMm) - 10; // Margin of 10mm from the right
+        $logoY = 20; // Fixed vertical position
+
+        $pdf->RotatedImage($logo_path, $logoX, $logoY, $logoWidthMm, $logoHeightMm, 0);
+    }
+}
+
+
 while ($product = $products->fetch_assoc()) {
-    $product_id = $product['id'];
-    $product_name = $product['name'];
-    $description = $product['description'];
-    $featured_image = $product['featured_image'];
+
     $branding_option = $product['branding_options'];
-    $logo_positions = !empty($product['logo_positions']) ? json_decode($product['logo_positions'], true) : null;
-    $logo_styles = !empty($product['logo_styles']) ? json_decode($product['logo_styles'], true) : null;
-    
-    $processed_logo_path = applyBrandingEffect($logo_path, $branding_option);
+    $logo_hex_color = $product['logo_hex_color']; // Use directly from the database
+    $featured_image = $product['featured_image'];
+    $processed_logo_path = applyBrandingEffect($logo_path, $logo_hex_color);
 
-    $scale = $logo_styles['scale'] ?? 1.0; // Default scale to 1.0
-    $rotation = $logo_styles['rotation'] ?? 0; // Default rotation to 0
+    if (file_exists($featured_image) && file_exists($processed_logo_path)) {
+        $pdf->AddPage();
 
-    $pdf->AddPage();
+        $i++;
+        $product_id = $product['id'];
+        $product_name = $product['name'];
+        $description = $product['description'];
 
-    if (file_exists($featured_image)) {
-        list($image_width_original, $image_height_original) = getimagesize($featured_image);
+        $logo_positions = !empty($product['logo_positions']) ? json_decode($product['logo_positions'], true) : null;
+        $logo_styles = !empty($product['logo_styles']) ? json_decode($product['logo_styles'], true) : null;
 
-        $image_width = 600;
-        $image_height = ($image_height_original / $image_width_original) * $image_width;
+        $left_percent = ($logo_positions['left'] ?? 0) * 729.8;
+        $top_percent =  ($logo_positions['top'] ?? 0) * 721.6;
 
-        $image_x = 150;
-        $image_y = 180;
+        $scale = $logo_styles['scale'] ?? 1.0; // Default scale to 1.0
+        $rotation = 360 - $logo_styles['rotation'] ?? 0; // Default rotation to 0
 
-        $pdf->Image($featured_image, $image_x, $image_y, $image_width, $image_height);
-    } else {
-        $pdf->Cell(0, 10, 'Featured image not found.', 0, 1);
+        // File paths for images
+        $productImage = $featured_image;
+        $logoImage = $processed_logo_path;
+
+        // Set the fixed product image width
+        $productFixedWidth = 2600; // Fixed width in pixels
+        $pixelToMM = 0.264583; // Conversion factor from pixels to mm (1 px = 0.264583 mm)
+        $productFixedWidthMM = $productFixedWidth * $pixelToMM;
+
+        // Get original dimensions of the product image
+        list($productWidth, $productHeight) = getimagesize($productImage);
+
+        // Calculate product image height dynamically based on aspect ratio
+        $productAspectRatio = $productWidth / $productHeight;
+        $productFixedHeightMM = $productFixedWidthMM / $productAspectRatio;
+
+        // Center the product image on the PDF
+        $pageWidth = $pdf->GetPageWidth();
+        $pageHeight = $pdf->GetPageHeight();
+
+        $productX = ($pageWidth - $productFixedWidthMM) / 2;
+        $productY = ($pageHeight - $productFixedHeightMM) / 2;
+
+        // Add the product image to the PDF
+        $pdf->Image($productImage, $productX, $productY, $productFixedWidthMM, $productFixedHeightMM);
+
+        // Get original dimensions of the logo
+        list($logoWidth, $logoHeight) = getimagesize($logoImage);
+        
+
+        // Calculate logo size as 15% of product image width
+        $logoScale = 1.01;
+        $logoDisplayWidthMM = 120 * $scale * $logoScale;
+        $logoAspectRatio = $logoWidth / $logoHeight;
+        $logoDisplayHeightMM = $logoDisplayWidthMM / $logoAspectRatio; 
+
+        // Position the logo at top-right corner of the product image
+        $logoX = $productX + ($left_percent / $productFixedWidthMM); // 75% from left of product image
+        $logoY = $productY + ($top_percent / $productFixedHeightMM); // 6% from top of product image
+
+            // Set font for the description
+$pdf->SetFont('Arial', '', 12); 
+
+// // Add product description
+// $pdf->MultiCell(0, 20, $description, 0, 'C');
+
+        // Add the logo to the PDF
+        $pdf->RotatedImage($logoImage, $logoX, $logoY, $logoDisplayWidthMM, $logoDisplayHeightMM, $rotation);
+        
+
+        $pdf->SetFont('Arial', 'B', 40);
+       // $pdf->Cell(0, 20, "Branding Hex Color: $logo_hex_color", 0, 1, 'C');
+        $pdf->Cell(0, 50, $product_name, 0, 1, 'C');
+        
+        
     }
-
-    if (file_exists($processed_logo_path)) {
-        list($logo_width_original, $logo_height_original) = getimagesize($processed_logo_path);
-
-        $logo_width = 120 * $scale; // Adjust width based on scale
-        $logo_height = ($logo_height_original / $logo_width_original) * $logo_width;
-       if (is_array($logo_positions)) {
-            $left_percent = $logo_positions['left'] ?? 0;
-            $top_percent = $logo_positions['top'] ?? 0;
-
-          // Adjust for scaling inconsistencies
-$scaling_adjustment_x = $image_width * 0.02; // 2% adjustment for X-axis 
-$scaling_adjustment_y = $image_height * 0.06; // 1% adjustment for Y-axis 
-
-
-// Calculate aspect ratio of the image 
-$aspect_ratio = $image_width / $image_height;
-
-// Adjust factors dynamically for different product types
-$dynamic_left_factor = 101 + ($aspect_ratio * 3); // Fine-tune this value for left adjustment
-$dynamic_top_factor = 90 + (($image_height / $image_width) * 3); // Fine-tune this value for top adjustment
-
-// Dynamic Logo Placement Formula
-$logo_x = $image_x + ($image_width * ($left_percent / $dynamic_left_factor)) - ($logo_width / 2);
-$logo_y = $image_y + ($image_height * ($top_percent / $dynamic_top_factor)) - ($logo_height / 2);
- 
- 
-
-        } else {
-            $logo_x = $image_x + ($image_width / 2) - ($logo_width / 2);
-            $logo_y = $image_y + ($image_height / 2) - ($logo_height / 2); 
-        }
-
-        $pdf->Rotate($rotation, $logo_x + ($logo_width / 2), $logo_y + ($logo_height / 2)); // Rotate logo around its center
-        $pdf->Image($processed_logo_path, $logo_x, $logo_y, $logo_width, $logo_height);
-        $pdf->Rotate(0); // Reset rotation
-    } else {
-        $pdf->Cell(0, 10, 'Logo not uploaded or invalid.', 0, 1);
-    }
-
-    $pdf->SetFont('Arial', 'B', 50);
-    $pdf->SetY($image_y + $image_height + 20);
-    $pdf->Cell(0, 15, $product_name, 0, 1, 'C');
 }
 
 if ($template) {
     $pdf->AddPage();
-    $pdf->Image($template['second_template'], 0, 0, 1000, 1000);
+    $pdf->Image($template['second_template'], 0, 5, $page_width, 0);
 }
 
-ob_end_clean();
-$pdf->Output('D', 'product_with_logo_and_effects.pdf');
-?>
+// Output the PDF
+$pdf->Output('I', 'output.pdf');

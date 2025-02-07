@@ -1,5 +1,7 @@
 <?php
 require('db_connection.php');
+include 'admin_sidebar.php';
+
 
 if (isset($_GET['delete'])) {
     $id = $_GET['delete'];
@@ -21,10 +23,23 @@ $templates = $conn->query("SELECT * FROM templates");
 <html>
 <head>
     <title>List Templates</title>
+        <a class="add-btn" href="add_templates.php">Add New Template</a>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        h1 { text-align: center; color: #333; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        table th, table td { border: 1px solid #ddd; padding: 10px; text-align: center; }
+        table th { background-color: #f4f4f4; }
+        a { color: #007bff; text-decoration: none; }
+        a:hover { text-decoration: underline; }
+        .success-message, .error-message { text-align: center; margin: 10px 0; padding: 10px; border-radius: 5px; }
+        .success-message { background-color: #d4edda; color: #155724; }
+        .error-message { background-color: #f8d7da; color: #721c24; }
+    </style>
 </head>
 <body>
     <h1>Templates</h1>
-    <table border="1">
+    <table>
         <tr>
             <th>ID</th>
             <th>First Template</th>

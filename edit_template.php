@@ -1,5 +1,7 @@
 <?php
 require('db_connection.php');
+include 'admin_sidebar.php';
+
 
 $id = $_GET['id'] ?? null;
 
@@ -41,7 +43,19 @@ $template = $conn->query("SELECT * FROM templates WHERE id = $id")->fetch_assoc(
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Edit Template</title>
+    <title>Edit Template</title> 
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        h1 { text-align: center; color: #333; }
+        form { width: 50%; margin: 0 auto; background: #f9f9f9; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        label { font-weight: bold; display: block; margin-bottom: 8px; }
+        input[type="file"] { margin-bottom: 15px; }
+        button { background-color: #007bff; color: white; padding: 10px 15px; border: none; border-radius: 5px; cursor: pointer; }
+        button:hover { background-color: #0056b3; }
+        .success-message, .error-message { text-align: center; margin: 10px 0; padding: 10px; border-radius: 5px; }
+        .success-message { background-color: #d4edda; color: #155724; }
+        .error-message { background-color: #f8d7da; color: #721c24; }
+    </style>
 </head>
 <body>
     <form method="POST" enctype="multipart/form-data">
