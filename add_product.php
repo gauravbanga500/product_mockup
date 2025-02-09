@@ -113,13 +113,13 @@ $categories_result = $conn->query("SELECT * FROM categories");
                         style="position: absolute; width: 120px; height: auto; cursor: pointer;">
                 </div>
                 
-                <label for="logo_width" style="font-weight: bold;">Logo Width (px):</label>
-                <input type="number" id="logo_width" placeholder="e.g., 150" min="10"
-                    style="width: 100%; padding: 10px; border-radius: 5px; margin-top: 10px;">
+                <!--<label for="logo_width" style="font-weight: bold;">Logo Width (px):</label>-->
+                <!--<input type="number" id="logo_width" placeholder="e.g., 150" min="10"-->
+                <!--    style="width: 100%; padding: 10px; border-radius: 5px; margin-top: 10px;">-->
 
-                <label for="logo_height" style="font-weight: bold; margin-top: 10px;">Logo Height (px):</label>
-                <input type="number" id="logo_height" placeholder="e.g., 50" min="10"
-                    style="width: 100%; padding: 10px; border-radius: 5px; margin-top: 10px;">
+                <!--<label for="logo_height" style="font-weight: bold; margin-top: 10px;">Logo Height (px):</label>-->
+                <!--<input type="number" id="logo_height" placeholder="e.g., 50" min="10"-->
+                <!--    style="width: 100%; padding: 10px; border-radius: 5px; margin-top: 10px;">-->
 
                 <label for="logo_size" style="font-weight: bold;">Logo Size:</label>
                 <input type="range" id="logo_size" min="10" max="200" value="120"
@@ -135,7 +135,7 @@ $categories_result = $conn->query("SELECT * FROM categories");
                     style="margin-top: 10px; margin-bottom: 10px;">
 
                 <label for="logo_hex_input" style="font-weight: bold;">Hex Color Code:</label>
-                <input type="text" id="logo_hex_input" value="#ff0000" maxlength="7" pattern="#[a-fA-F0-9]{6}"
+                <input type="text" id="logo_hex_input" value="" maxlength="7" pattern="#[a-fA-F0-9]{6}"
                     title="Enter a valid hex code (#RRGGBB)" style="width: 100%; padding: 10px; border-radius: 5px;">
             </div>
 

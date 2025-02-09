@@ -20,7 +20,6 @@ $products = $conn->query($sql_products);
 
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -37,29 +36,35 @@ $products = $conn->query($sql_products);
         .product-item {
             width: calc(20% - 15px);
             text-align: center;
+            border: 1px solid #ddd;
+            padding: 10px;
+            border-radius: 8px;
+            background: #fff;
         }
-        .product-item img {
+        .product-item img.featured-img {
             width: 150px;
             height: auto;
             display: block;
             margin: auto;
         }
+        .product-item img.logo-img {
+            margin-top: 5px;
+            /* The width will be set dynamically below using the scale factor (default base width: 120px) */
+        }
         .product-item input {
             margin-top: 5px;
         }
-      .product-form {
-        background: #f9f9f9;
-        border: 1px solid #ddd;
-        border-radius: 8px;
-        padding: 20px;
-        max-width: 1200px;
-        width: 100%;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-}
-
+        .product-form {
+            background: #f9f9f9;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 20px;
+            max-width: 1200px;
+            width: 100%;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
     </style>
 </head>
-
 <body>
     <main class="container mt-4">
         <h1 class="text-center">Select Products for Mockup</h1>
@@ -85,8 +90,25 @@ $products = $conn->query($sql_products);
                 <div class="product-grid">
                     <?php while ($product = $products->fetch_assoc()): ?>
                     <div class="product-item">
-                        <img src="<?php echo $product['featured_image']; ?>" alt="<?php echo $product['name']; ?>">
+                        <!-- Display the featured image --> 
+                        <img class="featured-img" src="<?php echo htmlspecialchars($product['featured_image']); ?>" alt="<?php echo $product['name']; ?>">
                         <p><?php echo $product['name']; ?></p>
+                        <?php
+                        // Determine the logo scale factor from the logo_styles JSON
+                        $scale = 1; // default scale if not set
+                        if (!empty($product['logo_styles'])) {
+                            $styles = json_decode($product['logo_styles']);
+                            if ($styles && isset($styles->scale)) {
+                                $scale = $styles->scale;
+                            }
+                        }
+                        // Base logo width is 120px; final width = base width * scale
+                        $finalLogoWidth = 120 * $scale;
+                        ?>  
+                        <!-- Display the logo image with adjusted width (if available) --> 
+                        <?php if (!empty($product['logo_path'])): ?>
+                        <img class="logo-img" src="<?php echo htmlspecialchars($product['logo_path']); ?>" alt="Logo" style="width: <?php echo $finalLogoWidth; ?>px; height: auto;">
+                        <?php endif; ?>
                         <input type="checkbox" name="products[]" value="<?php echo $product['id']; ?>">
                     </div>
                     <?php endwhile; ?>
@@ -98,6 +120,7 @@ $products = $conn->query($sql_products);
             <input type="file" name="logo" id="logo" class="form-control" required>
             <br>
             
+            <input type="hidden" name="base_logo_width" value="120">
             <button type="submit" class="btn btn-primary">Generate PDF</button>
         </form>
     </main>

@@ -15,118 +15,27 @@ if (!isset($_POST['product_option'])) {
 
 $product_option = $_POST['product_option'];
 $logo = $_FILES['logo']['tmp_name'];
-// Old code ======08-02-2025
-// $logo_name = $_FILES['logo']['name'];
-// $upload_dir = 'uploads/';
-
-// if (!$logo) {
-//     die('Error: Logo file is required.');
-// }
-
-// // Upload logo
-// $logo_ext = pathinfo($logo_name, PATHINFO_EXTENSION);
-// $logo_new_name = uniqid('logo_', true) . '.' . $logo_ext;
-// $logo_path = $upload_dir . $logo_new_name;
-
-// if (!move_uploaded_file($logo, $logo_path)) {
-//     die('Error: Failed to upload logo.');
-// }
-// =========08-02-2025=========
-
+$logo_name = $_FILES['logo']['name'];
 $upload_dir = 'uploads/';
 
-// Check if file is uploaded
-if (!isset($_FILES['logo']) || $_FILES['logo']['error'] !== UPLOAD_ERR_OK) {
+if (!$logo) {
     die('Error: Logo file is required.');
 }
 
-$logo_tmp = $_FILES['logo']['tmp_name'];
-$logo_name = $_FILES['logo']['name'];
-$logo_ext = strtolower(pathinfo($logo_name, PATHINFO_EXTENSION));
-$allowed_extensions = ['jpg', 'jpeg', 'png', 'gif'];
-
-if (!in_array($logo_ext, $allowed_extensions)) {
-    die('Error: Invalid file format. Allowed formats: JPG, JPEG, PNG, GIF.');
-}
-
-// Generate a unique filename
+// Upload logo
+$logo_ext = pathinfo($logo_name, PATHINFO_EXTENSION);
 $logo_new_name = uniqid('logo_', true) . '.' . $logo_ext;
 $logo_path = $upload_dir . $logo_new_name;
 
-// Resize settings
-$target_width = 632;
-$target_height = 395;
-
-// Get original image size
-list($original_width, $original_height) = getimagesize($logo_tmp);
-
-// Calculate new width and height while maintaining aspect ratio
-$ratio = min($target_width / $original_width, $target_height / $original_height);
-$new_width = intval($original_width * $ratio);
-$new_height = intval($original_height * $ratio);
-
-// Calculate padding for centering
-$padding_x = intval(($target_width - $new_width) / 2);
-$padding_y = intval(($target_height - $new_height) / 2);
-
-// Create a blank transparent image instead of a white background
-$resized_image = imagecreatetruecolor($target_width, $target_height);
-
-// Handle transparency for PNG & GIF
-if ($logo_ext === 'png' || $logo_ext === 'gif') {
-    imagesavealpha($resized_image, true);
-    $transparent = imagecolorallocatealpha($resized_image, 0, 0, 0, 127); // Full transparency
-    imagefill($resized_image, 0, 0, $transparent);
-} else {
-    // For JPG, use white background
-    $white = imagecolorallocate($resized_image, 255, 255, 255);
-    imagefill($resized_image, 0, 0, $white);
+if (!move_uploaded_file($logo, $logo_path)) {
+    die('Error: Failed to upload logo.');
 }
 
-// Load original image based on type
-switch ($logo_ext) {
-    case 'jpg':
-    case 'jpeg':
-        $source_image = imagecreatefromjpeg($logo_tmp);
-        break;
-    case 'png':
-        $source_image = imagecreatefrompng($logo_tmp);
-        break;
-    case 'gif':
-        $source_image = imagecreatefromgif($logo_tmp);
-        break;
-    default:
-        die('Error: Unsupported image type.');
-}
-
-// Resize the image while maintaining aspect ratio and center it
-imagecopyresampled($resized_image, $source_image, $padding_x, $padding_y, 0, 0, $new_width, $new_height, $original_width, $original_height);
-
-// Save the resized image
-switch ($logo_ext) {
-    case 'jpg':
-    case 'jpeg':
-        imagejpeg($resized_image, $logo_path, 90);
-        break;
-    case 'png':
-        imagepng($resized_image, $logo_path, 9);
-        break;
-    case 'gif':
-        imagegif($resized_image, $logo_path);
-        break;
-}
-
-// Free memory
-imagedestroy($resized_image);
-imagedestroy($source_image);
-
-function hexToRgb($hexColor)
-{
+function hexToRgb($hexColor) {
     $hexColor = ltrim($hexColor, '#');
     if (strlen($hexColor) == 3) {
         $hexColor = $hexColor[0] . $hexColor[0] . $hexColor[1] . $hexColor[1] . $hexColor[2] . $hexColor[2];
     }
-
     return [
         hexdec(substr($hexColor, 0, 2)),
         hexdec(substr($hexColor, 2, 2)),
@@ -134,16 +43,8 @@ function hexToRgb($hexColor)
     ];
 }
 
-function applyBrandingEffect($logo_path, $hex_color, $product_id = null)
-{
+function applyBrandingEffect($logo_path, $hex_color, $product_id = null) {
     $product_id = $product_id ?? uniqid();
-
-    if (!$hex_color) {
-        // No color selected, return the original logo path without processing
-        return $logo_path;
-    }
-
-    // Load the logo image
     $logo_image = imagecreatefrompng($logo_path);
 
     if (!$logo_image) {
@@ -153,37 +54,35 @@ function applyBrandingEffect($logo_path, $hex_color, $product_id = null)
     $width = imagesx($logo_image);
     $height = imagesy($logo_image);
 
-    // Create a new transparent image
     $output_image = imagecreatetruecolor($width, $height);
     imagesavealpha($output_image, true);
-    $transparent = imagecolorallocatealpha($output_image, 0, 0, 0, 127); // Full transparency
+    $transparent = imagecolorallocatealpha($output_image, 255, 255, 255, 127);
     imagefill($output_image, 0, 0, $transparent);
 
-    list($r, $g, $b) = hexToRgb($hex_color);
+    if (!$hex_color) {
+        $hex_color = '#ffffff';
+    }
 
-    // Apply branding color only where there are non-transparent pixels
+    list($r, $g, $b) = hexToRgb($hex_color);
+    $color = imagecolorallocate($output_image, $r, $g, $b);
+
     for ($x = 0; $x < $width; $x++) {
         for ($y = 0; $y < $height; $y++) {
-            $alpha = (imagecolorat($logo_image, $x, $y) >> 24) & 0xFF; // Extract alpha channel
-
-            if ($alpha < 127) { // Apply color only to non-transparent pixels
-                $new_color = imagecolorallocatealpha($output_image, $r, $g, $b, $alpha);
-                imagesetpixel($output_image, $x, $y, $new_color);
+            $pixel_color = imagecolorsforindex($logo_image, imagecolorat($logo_image, $x, $y));
+            if ($pixel_color['alpha'] < 127) {
+                imagesetpixel($output_image, $x, $y, $color);
             }
         }
     }
 
     $processed_logo_path = str_replace('.png', "_processed_$product_id.png", $logo_path);
     imagepng($output_image, $processed_logo_path);
- 
+
     imagedestroy($logo_image);
     imagedestroy($output_image);
 
     return $processed_logo_path;
 }
-
-
-// =========08-02-2025=========
 
 // Prepare SQL query based on selection
 if ($product_option === 'individual' && isset($_POST['products'])) {
@@ -270,8 +169,7 @@ $i = 0;
 
 // Define standard DPI for conversion
 define('DPI', 96); // Assuming 96 DPI as standard for image rendering
-function pxToMm($px)
-{
+function pxToMm($px) {
     return $px * 25.4 / DPI; // Conversion factor for pixels to millimeters
 }
 
@@ -351,51 +249,39 @@ while ($product = $products->fetch_assoc()) {
 
         // Get original dimensions of the logo
         list($logoWidth, $logoHeight) = getimagesize($logoImage);
-
+        
 
         // Calculate logo size as 15% of product image width
         $logoScale = 1.01;
         $logoDisplayWidthMM = 120 * $scale * $logoScale;
         $logoAspectRatio = $logoWidth / $logoHeight;
-        $logoDisplayHeightMM = $logoDisplayWidthMM / $logoAspectRatio;
+        $logoDisplayHeightMM = $logoDisplayWidthMM / $logoAspectRatio; 
 
         // Position the logo at top-right corner of the product image
         $logoX = $productX + ($left_percent / $productFixedWidthMM); // 75% from left of product image
         $logoY = $productY + ($top_percent / $productFixedHeightMM); // 6% from top of product image
 
-        // Set font for the description
-        $pdf->SetFont('Arial', '', 12);
-        
-//                 // Check if description is not empty
-// if (!empty($product['description'])) {
-//     $pdf->MultiCell(0, 10, "Description: " . $product['description']);
-// } else {
-//     $pdf->MultiCell(0, 10, "No description available.");
-// }
-     
+            // Set font for the description
+$pdf->SetFont('Arial', '', 12); 
 
-        // // Add product description
-        // $pdf->MultiCell(0, 20, $description, 0, 'C');
+// // Add product description
+// $pdf->MultiCell(0, 20, $description, 0, 'C');
 
         // Add the logo to the PDF
         $pdf->RotatedImage($logoImage, $logoX, $logoY, $logoDisplayWidthMM, $logoDisplayHeightMM, $rotation);
-
+        
 
         $pdf->SetFont('Arial', 'B', 40);
-        // $pdf->Cell(0, 20, "Branding Hex Color: $logo_hex_color", 0, 1, 'C');
+       // $pdf->Cell(0, 20, "Branding Hex Color: $logo_hex_color", 0, 1, 'C');
         $pdf->Cell(0, 50, $product_name, 0, 1, 'C');
         
-   
         
-
-
     }
 }
 
 if ($template) {
     $pdf->AddPage();
     $pdf->Image($template['second_template'], 0, 5, $page_width, 0);
-    
 }
 
 // Output the PDF

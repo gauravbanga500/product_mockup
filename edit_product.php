@@ -2,7 +2,6 @@
 include 'db_connection.php';
 include 'admin_sidebar.php';
 
-
 // Fetch product details using ID
 $product_id = isset($_GET['id']) ? intval($_GET['id']) : 0;
 
@@ -36,7 +35,6 @@ $product['logo_styles'] = json_decode($product['logo_styles']);
     <script src="https://code.jquery.com/ui/1.13.0/jquery-ui.min.js"></script>
     <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.0/themes/base/jquery-ui.css">
     <style>
-        /* Overall page styling */
         body {
             font-family: Arial, sans-serif;
             background-color: #f7f7f7;
@@ -99,68 +97,19 @@ $product['logo_styles'] = json_decode($product['logo_styles']);
             background-color: #0056b3;
         }
 
-        .form-section {
-            margin-bottom: 20px;
-        }
-
-        .logo-section {
-            /*display: flex;*/
-            justify-content: center;
-            align-items: center;
+        #product_image {
+            position: relative;
+            width: 500px;
+            height: auto;
             margin-top: 20px;
         }
 
-        #product_image {
-        position: relative;
-        width: 500px;
-        height: auto;
-        margin-top: 20px;
-    }
         #logo_preview {
-        position: absolute;
-        width: 120px;
-        height: auto;
-        cursor: pointer;
-    }
-
-        /* Styling for sliders */
-        /*input[type="range"] {*/
-        /*    width: 100%;*/
-        /*    margin-top: 10px;*/
-        /*}*/
-
-       /* CSS Effects */
-    .digital-uv-printing {
-        color: #e60012;
-        text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3);
-        filter: brightness(1.2) contrast(1.1);
-    }
-
-    .blind-embossing {
-        color: #7d7d7d;
-        text-shadow: 0px 0px 3px rgba(0, 0, 0, 0.4);
-        filter: grayscale(1) brightness(1.1);
-    }
-
-    .golden-embossing {
-        filter: sepia(1) saturate(10) hue-rotate(15deg) brightness(1.1);
-    }
-
-    .silver-embossing {
-        filter: grayscale(1) brightness(1.5) contrast(1.2);
-    }
-
-    .logo-effect-digital-uv {
-        color: #e60012;
-        text-shadow: 0px 0px 5px rgba(255, 0, 0, 0.6);
-        filter: contrast(1.4) brightness(1.3);
-    }
-
-    .logo-effect-laser-engraving {
-        color: #ffffff;
-        text-shadow: 0px 0px 3px rgba(0, 0, 0, 0.8), 1px 1px 4px rgba(0, 0, 0, 0.5);
-        filter: grayscale(1) brightness(0.9);
-    }
+            position: absolute;
+            width: 120px;
+            height: auto;
+            cursor: pointer;
+        }
     </style>
 </head>
 
@@ -200,20 +149,6 @@ $product['logo_styles'] = json_decode($product['logo_styles']);
             </select>
         </div>
 
-        <!-- Logo Effect -->
-        <div class="form-section">
-            <label for="branding_option">Logo Effect:</label>
-            <select name="branding_option" id="branding_option" required>
-                <option value="">Select Logo Effect</option>
-                <option value="digital-uv-printing" <?php echo ($product['branding_options'] == 'digital-uv-printing') ? 'selected' : ''; ?>>Digital UV Printing</option>
-                <option value="blind-embossing" <?php echo ($product['branding_options'] == 'blind-embossing') ? 'selected' : ''; ?>>Blind Embossing</option>
-                <option value="golden-embossing" <?php echo ($product['branding_options'] == 'golden-embossing') ? 'selected' : ''; ?>>Golden Embossing</option>
-                <option value="silver-embossing" <?php echo ($product['branding_options'] == 'silver-embossing') ? 'selected' : ''; ?>>Silver Embossing</option>
-                <option value="logo-effect-digital-uv" <?php echo ($product['branding_options'] == 'logo-effect-digital-uv') ? 'selected' : ''; ?>>LOGO EFFECT - Digital UV Printing</option>
-                <option value="logo-effect-laser-engraving" <?php echo ($product['branding_options'] == 'logo-effect-laser-engraving') ? 'selected' : ''; ?>>LOGO EFFECT - LASER ENGRAVING</option>
-            </select>
-        </div>
-
         <div class="logo-section">
             <div id="product_image">
                 <img id="featured_image_preview" src="<?php echo htmlspecialchars($product['featured_image']); ?>" alt="Product Image" style="width: 650px; height: auto;">
@@ -231,15 +166,14 @@ $product['logo_styles'] = json_decode($product['logo_styles']);
             <input type="range" id="logo_rotation" min="0" max="360" value="0">
         </div>
         
-          <br><br>
         <label for="logo_color_picker">Select Logo Color:</label>
-        <input type="color" id="logo_color_picker" value="<?php echo $product['hex_color'] ?? '#ff0000'; ?>">
+        <input type="color" id="logo_color_picker" value="<?php echo $product['hex_color'] ?? ''; ?>">
 
         <label for="logo_hex_input">Hex Color Code:</label>
-        <input type="text" id="logo_hex_input" value="<?php echo $product['hex_color'] ?? '#ff0000'; ?>" maxlength="7" pattern="#?[a-fA-F0-9]{6}" title="Enter a valid hex code (#RRGGBB)">
+        <input type="text" id="logo_hex_input" value="<?php echo $product['hex_color'] ?? ''; ?>" maxlength="7" pattern="#?[a-fA-F0-9]{6}" title="Enter a valid hex code (#RRGGBB)">
         <br><br>
 
-        <input type="hidden" name="logo_position" id="logo_position" value= '<?php echo htmlspecialchars($product['logo_positions']); ?>'>
+        <input type="hidden" name="logo_position" id="logo_position" value='<?php echo htmlspecialchars($product['logo_positions']); ?>'>
         <input type="hidden" name="hex_color" id="hex_color">
         <input type="hidden" name="logo_scale" id="logo_scale" value="<?php echo $product['logo_styles']->scale ?>">
         <input type="hidden" name="logo_angle" id="logo_angle" value="<?php echo $product['logo_styles']->rotation ?>">
@@ -256,8 +190,15 @@ $product['logo_styles'] = json_decode($product['logo_styles']);
         const savedLogoPosition =
             <?php echo $product['logo_positions'] ? $product['logo_positions'] : '{ "top": 0, "left": 0 }'; ?>;
             
-               // Initialize saved color from database
-    const savedHexColor = "<?php echo $product['hex_color'] ?? '#ff0000'; ?>";
+ // Initialize saved color from the database, empty string if not set
+    const savedHexColor = "<?php echo $hex_color; ?>";
+
+    // Set initial color picker and hex input values if a color is available
+    if (savedHexColor) {
+        $('#logo_color_picker').val(savedHexColor);
+        $('#logo_hex_input').val(savedHexColor);
+        applyColorToLogo(savedHexColor);
+    }
     
     
         // Initialize logo data
@@ -271,29 +212,32 @@ $product['logo_styles'] = json_decode($product['logo_styles']);
         };
 
        
-            function applyColorToLogo(hexColor) {
-                canvas.width = logoImg.naturalWidth;
-                canvas.height = logoImg.naturalHeight;
+    function applyColorToLogo(hexColor) {
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        const logoImg = document.getElementById('logo_preview');
 
-                ctx.clearRect(0, 0, canvas.width, canvas.height);
-                ctx.drawImage(logoImg, 0, 0);
+        canvas.width = logoImg.naturalWidth;
+        canvas.height = logoImg.naturalHeight;
 
-                const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-                const color = hexToRgb(hexColor);
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.drawImage(logoImg, 0, 0);
 
-                for (let i = 0; i < imgData.data.length; i += 4) {
-                    const alpha = imgData.data[i + 3];
-                    if (alpha > 0) {
-                        imgData.data[i] = color.r;
-                        imgData.data[i + 1] = color.g;
-                        imgData.data[i + 2] = color.b;
-                    }
-                }
+        const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+        const color = hexToRgb(hexColor);
 
-                ctx.putImageData(imgData, 0, 0);
-                $('#logo_preview').attr('src', canvas.toDataURL());
+        for (let i = 0; i < imgData.data.length; i += 4) {
+            const alpha = imgData.data[i + 3];
+            if (alpha > 0) {
+                imgData.data[i] = color.r;
+                imgData.data[i + 1] = color.g;
+                imgData.data[i + 2] = color.b;
             }
+        }
 
+        ctx.putImageData(imgData, 0, 0);
+        $('#logo_preview').attr('src', canvas.toDataURL());
+    }
             function hexToRgb(hex) {
                 const bigint = parseInt(hex.slice(1), 16);
                 return {
@@ -381,11 +325,7 @@ $product['logo_styles'] = json_decode($product['logo_styles']);
             }
         });
 
-        // Apply branding effect
-        $('#branding_option').on('change', function() {
-            const selectedEffect = $(this).val();
-            $('#logo_preview').attr('class', selectedEffect);
-        });
+     
 
         // Update logo size using slider
         $('#logo_size').on('input', function() {
