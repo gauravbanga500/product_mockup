@@ -23,7 +23,15 @@ if (!$product) {
 // Fetch categories
 $categories_result = $conn->query("SELECT * FROM categories");
 $product['logo_styles'] = json_decode($product['logo_styles']);
+<<<<<<< HEAD
 ?>
+=======
+
+
+?>
+
+
+>>>>>>> c38e2af (updated code)
 <!DOCTYPE html>
 <html lang="en">
 
@@ -35,6 +43,7 @@ $product['logo_styles'] = json_decode($product['logo_styles']);
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://code.jquery.com/ui/1.13.0/jquery-ui.min.js"></script>
     <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.0/themes/base/jquery-ui.css">
+<<<<<<< HEAD
     <style>
         /* Overall page styling */
         body {
@@ -117,12 +126,98 @@ $product['logo_styles'] = json_decode($product['logo_styles']);
         margin-top: 20px;
     }
         #logo_preview {
+=======
+   <style>
+    /* Overall page styling */
+    body {
+        font-family: Arial, sans-serif;
+        background-color: #f7f7f7;
+        color: #333;
+        margin: 0;
+        padding: 20px;
+    }
+
+    h1 {
+        text-align: center;
+        color: #007bff;
+    }
+
+    form {
+        background-color: white;
+        border-radius: 8px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        padding: 20px;
+        width: 60%;
+        margin: auto;
+    }
+
+    label {
+        font-weight: bold;
+        display: block;
+        margin-top: 10px;
+        color: #555;
+    }
+
+    input[type="text"],
+    input[type="file"],
+    select,
+    textarea {
+        width: 100%;
+        padding: 10px;
+        margin-top: 5px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        box-sizing: border-box;
+    }
+
+    input[type="range"] {
+        width: 100%;
+        margin-top: 5px;
+    }
+
+    button {
+        background-color: #007bff;
+        color: white;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        display: block;
+        margin-top: 20px;
+        width: 100%;
+    }
+
+    button:hover {
+        background-color: #0056b3;
+    }
+
+    .form-section {
+        margin-bottom: 20px;
+    }
+
+    .logo-section {
+        /*display: flex;*/
+        justify-content: center;
+        align-items: center;
+        margin-top: 20px;
+    }
+
+    #product_image {
+        position: relative;
+        width: 650px;
+        height: auto;
+        margin-top: 20px;
+    }
+
+    #logo_preview {
+>>>>>>> c38e2af (updated code)
         position: absolute;
         width: 120px;
         height: auto;
         cursor: pointer;
     }
 
+<<<<<<< HEAD
         /* Styling for sliders */
         /*input[type="range"] {*/
         /*    width: 100%;*/
@@ -130,6 +225,15 @@ $product['logo_styles'] = json_decode($product['logo_styles']);
         /*}*/
 
        /* CSS Effects */
+=======
+    /* Styling for sliders */
+    /*input[type="range"] {*/
+    /*    width: 100%;*/
+    /*    margin-top: 10px;*/
+    /*}*/
+
+    /* CSS Effects */
+>>>>>>> c38e2af (updated code)
     .digital-uv-printing {
         color: #e60012;
         text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3);
@@ -176,14 +280,24 @@ $product['logo_styles'] = json_decode($product['logo_styles']);
 
         <div class="form-section">
             <label for="description">Product Description:</label>
+<<<<<<< HEAD
             <textarea name="description" id="description" required><?php echo htmlspecialchars($product['description']); ?></textarea>
+=======
+            <textarea name="description" id="description"
+                required><?php echo htmlspecialchars($product['description']); ?></textarea>
+>>>>>>> c38e2af (updated code)
         </div>
 
         <div class="form-section">
             <label for="featured_image">Featured Image:</label>
             <input type="file" name="featured_image" id="featured_image">
             <?php if (!empty($product['featured_image'])): ?>
+<<<<<<< HEAD
             <img src="<?php echo htmlspecialchars($product['featured_image']); ?>" alt="Current Image" style="width: 150px; margin-top: 10px;">
+=======
+            <img src="<?php echo htmlspecialchars($product['featured_image']); ?>" alt="Current Image"
+                style="width: 150px; margin-top: 10px;">
+>>>>>>> c38e2af (updated code)
             <?php endif; ?>
         </div>
 
@@ -200,6 +314,7 @@ $product['logo_styles'] = json_decode($product['logo_styles']);
             </select>
         </div>
 
+<<<<<<< HEAD
         <!-- Logo Effect -->
         <div class="form-section">
             <label for="branding_option">Logo Effect:</label>
@@ -221,6 +336,19 @@ $product['logo_styles'] = json_decode($product['logo_styles']);
             </div>
         </div>
 
+=======
+       
+  <div class="logo-section">
+            <div id="product_image">
+                <img id="featured_image_preview" src="<?php echo htmlspecialchars($product['featured_image']); ?>"
+                    alt="Product Image" style="width: 650px; height: auto;">
+                <img id="logo_preview"
+                    src="<?php echo htmlspecialchars($product['logo_path'] ?: 'uploads/sample_logo.png'); ?>"
+                    alt="Logo Preview">
+            </div>
+        </div>
+        
+>>>>>>> c38e2af (updated code)
         <div class="form-section">
             <label for="logo_size">Logo Size:</label>
             <input type="range" id="logo_size" min="10" max="200" value="120">
@@ -230,16 +358,30 @@ $product['logo_styles'] = json_decode($product['logo_styles']);
             <label for="logo_rotation">Logo Rotation:</label>
             <input type="range" id="logo_rotation" min="0" max="360" value="0">
         </div>
+<<<<<<< HEAD
         
           <br><br>
+=======
+
+        <br><br>
+>>>>>>> c38e2af (updated code)
         <label for="logo_color_picker">Select Logo Color:</label>
         <input type="color" id="logo_color_picker" value="<?php echo $product['hex_color'] ?? '#ff0000'; ?>">
 
         <label for="logo_hex_input">Hex Color Code:</label>
+<<<<<<< HEAD
         <input type="text" id="logo_hex_input" value="<?php echo $product['hex_color'] ?? '#ff0000'; ?>" maxlength="7" pattern="#?[a-fA-F0-9]{6}" title="Enter a valid hex code (#RRGGBB)">
         <br><br>
 
         <input type="hidden" name="logo_position" id="logo_position" value= '<?php echo htmlspecialchars($product['logo_positions']); ?>'>
+=======
+        <input type="text" id="logo_hex_input" value="<?php echo $product['hex_color'] ?? '#ff0000'; ?>" maxlength="7"
+            pattern="#?[a-fA-F0-9]{6}" title="Enter a valid hex code (#RRGGBB)">
+        <br><br>
+
+        <input type="hidden" name="logo_position" id="logo_position"
+            value='<?php echo htmlspecialchars($product['logo_positions']); ?>'>
+>>>>>>> c38e2af (updated code)
         <input type="hidden" name="hex_color" id="hex_color">
         <input type="hidden" name="logo_scale" id="logo_scale" value="<?php echo $product['logo_styles']->scale ?>">
         <input type="hidden" name="logo_angle" id="logo_angle" value="<?php echo $product['logo_styles']->rotation ?>">
@@ -250,6 +392,7 @@ $product['logo_styles'] = json_decode($product['logo_styles']);
 
     <script>
     $(document).ready(function() {
+<<<<<<< HEAD
          const canvas = document.createElement('canvas');
          const ctx = canvas.getContext('2d');
          const logoImg = document.getElementById('logo_preview');
@@ -260,6 +403,18 @@ $product['logo_styles'] = json_decode($product['logo_styles']);
     const savedHexColor = "<?php echo $product['hex_color'] ?? ''; ?>";
     
     
+=======
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        const logoImg = document.getElementById('logo_preview');
+        const savedLogoPosition =
+            <?php echo $product['logo_positions'] ? $product['logo_positions'] : '{ "top": 0, "left": 0 }'; ?>;
+
+        // Initialize saved color from database 
+        const savedHexColor = "<?php echo $product['logo_hex_color'] ?? ''; ?>";
+
+
+>>>>>>> c38e2af (updated code)
         // Initialize logo data
         var logoData = {
             position: {
@@ -270,6 +425,7 @@ $product['logo_styles'] = json_decode($product['logo_styles']);
             angle: <?php echo $product['logo_styles']->rotation ?>
         };
 
+<<<<<<< HEAD
        
             function applyColorToLogo(hexColor) {
                 canvas.width = logoImg.naturalWidth;
@@ -335,6 +491,73 @@ $product['logo_styles'] = json_decode($product['logo_styles']);
                 };
                 reader.readAsDataURL(this.files[0]);
             });
+=======
+
+        function applyColorToLogo(hexColor) {
+            canvas.width = logoImg.naturalWidth;
+            canvas.height = logoImg.naturalHeight;
+
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.drawImage(logoImg, 0, 0);
+
+            const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            const color = hexToRgb(hexColor);
+
+            for (let i = 0; i < imgData.data.length; i += 4) {
+                const alpha = imgData.data[i + 3];
+                if (alpha > 0) {
+                    imgData.data[i] = color.r;
+                    imgData.data[i + 1] = color.g;
+                    imgData.data[i + 2] = color.b;
+                }
+            }
+
+            ctx.putImageData(imgData, 0, 0);
+            $('#logo_preview').attr('src', canvas.toDataURL());
+        }
+
+        function hexToRgb(hex) {
+            const bigint = parseInt(hex.slice(1), 16);
+            return {
+                r: (bigint >> 16) & 255,
+                g: (bigint >> 8) & 255,
+                b: bigint & 255,
+            };
+        }
+
+        $('#logo_color_picker').on('input', function() {
+            const color = $(this).val();
+            $('#logo_hex_input').val(color);
+            applyColorToLogo(color);
+        });
+
+        $('#logo_hex_input').on('input', function() {
+            const hexColor = $(this).val();
+            if (/^#[0-9A-Fa-f]{6}$/.test(hexColor)) {
+                $('#logo_color_picker').val(hexColor);
+                applyColorToLogo(hexColor);
+            }
+        });
+
+        $('#logo_color_picker, #logo_hex_input').on('input', function() {
+            const hexColor = $('#logo_hex_input').val();
+            $('#hex_color').val(hexColor);
+        });
+
+        // Set initial color picker and hex input values
+        $('#logo_color_picker').val(savedHexColor);
+        $('#logo_hex_input').val(savedHexColor);
+
+       $('#featured_image').on('change', function() {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                $('#featured_image_preview').attr('src', e.target.result).show();
+                $('#product_image').show();
+                $('#logo_preview').show();
+            };
+            reader.readAsDataURL(this.files[0]);
+        });
+>>>>>>> c38e2af (updated code)
 
         // Make the logo draggable within the container
 
@@ -381,13 +604,27 @@ $product['logo_styles'] = json_decode($product['logo_styles']);
             }
         });
 
+<<<<<<< HEAD
+=======
+        <?php if($product['branding_options'] != "") { ?>
+        $('#logo_preview').attr('class', '<?php echo $product['branding_options'];?>');
+        <?php } ?>
+
+        <?php if ($product['logo_hex_color'] != "") { ?>
+        applyColorToLogo('<?php echo $product['logo_hex_color'] ?? '#ff0000';?>');
+        <?php } ?>
+>>>>>>> c38e2af (updated code)
         // Apply branding effect
         $('#branding_option').on('change', function() {
             const selectedEffect = $(this).val();
             $('#logo_preview').attr('class', selectedEffect);
         });
 
+<<<<<<< HEAD
         // Update logo size using slider
+=======
+         // Update logo size using slider
+>>>>>>> c38e2af (updated code)
         $('#logo_size').on('input', function() {
             const newSize = $(this).val();
             $('#logo_preview').css({
@@ -397,7 +634,11 @@ $product['logo_styles'] = json_decode($product['logo_styles']);
 
             // Update scale in logoData
             logoData.scale = newSize / 120; // Assuming 120 is the default size
+<<<<<<< HEAD
             $('#logo_scale').val(logoData.scale); 
+=======
+            $('#logo_scale').val(logoData.scale);
+>>>>>>> c38e2af (updated code)
         });
 
 
@@ -427,4 +668,8 @@ $product['logo_styles'] = json_decode($product['logo_styles']);
     </script>
 </body>
 
+<<<<<<< HEAD
 </html>
+=======
+</html>
+>>>>>>> c38e2af (updated code)

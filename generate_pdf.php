@@ -280,6 +280,7 @@ if ($template) {
     $pdf->AddPage();
     $pdf->Image($template['first_template'], 0, 5, $page_width, 0);
 
+<<<<<<< HEAD
     // Fetch logo dimensions from database
     $sql_logo_dimensions = "SELECT logo_width, logo_height FROM products WHERE id IN ($product_ids) LIMIT 1";
     $logo_dimensions_result = $conn->query($sql_logo_dimensions);
@@ -295,10 +296,42 @@ if ($template) {
         $logoY = 20; // Fixed vertical position
 
         $pdf->RotatedImage($logo_path, $logoX, $logoY, $logoWidthMm, $logoHeightMm, 0);
+=======
+    // Ensure the uploaded logo exists before adding
+    if (file_exists($logo_path)) {
+        // **Set width to 120px and auto height while keeping aspect ratio**
+        $logoWidthPx = 500; // Fixed width in pixels
+        list($originalLogoWidth, $originalLogoHeight) = getimagesize($logo_path);
+        $logoAspectRatio = $originalLogoWidth / $originalLogoHeight;
+        $logoHeightPx = $logoWidthPx / $logoAspectRatio; // Auto height to maintain aspect ratio
+
+        // Convert pixels to mm
+        $logoWidthMm = pxToMm($logoWidthPx);
+        $logoHeightMm = pxToMm($logoHeightPx);
+
+        // **Set Position (25px margin from top & right)**
+        $marginPx = 350; // Margin in pixels
+        $marginMm = pxToMm($marginPx); // Convert margin from px to mm
+
+        $logoX_top_right = $page_width - $logoWidthMm - $marginMm; // Right margin
+        $logoY_top_right = $marginMm; // Top margin
+
+        // **Add the same logo to the top-right**
+        $pdf->Image($logo_path, $logoX_top_right, $logoY_top_right, $logoWidthMm, $logoHeightMm);
+
+        // Debugging: Log the exact position
+        error_log("Logo placed at Top-Right: X = $logoX_top_right, Y = $logoY_top_right, Width = $logoWidthMm, Height = $logoHeightMm");
+    } else {
+        error_log("Error: Logo file not found at $logo_path");
+>>>>>>> c38e2af (updated code)
     }
 }
 
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> c38e2af (updated code)
 while ($product = $products->fetch_assoc()) {
 
     $branding_option = $product['branding_options'];
@@ -317,8 +350,13 @@ while ($product = $products->fetch_assoc()) {
         $logo_positions = !empty($product['logo_positions']) ? json_decode($product['logo_positions'], true) : null;
         $logo_styles = !empty($product['logo_styles']) ? json_decode($product['logo_styles'], true) : null;
 
+<<<<<<< HEAD
         $left_percent = ($logo_positions['left'] ?? 0) * 729.8;
         $top_percent =  ($logo_positions['top'] ?? 0) * 721.6;
+=======
+        $left_percent = ($logo_positions['left'] ?? 0) * 725.8;
+        $top_percent =  ($logo_positions['top'] ?? 0) * 740.6;
+>>>>>>> c38e2af (updated code)
 
         $scale = $logo_styles['scale'] ?? 1.0; // Default scale to 1.0
         $rotation = 360 - $logo_styles['rotation'] ?? 0; // Default rotation to 0
@@ -381,9 +419,24 @@ while ($product = $products->fetch_assoc()) {
         $pdf->RotatedImage($logoImage, $logoX, $logoY, $logoDisplayWidthMM, $logoDisplayHeightMM, $rotation);
 
 
+<<<<<<< HEAD
         $pdf->SetFont('Arial', 'B', 40);
         // $pdf->Cell(0, 20, "Branding Hex Color: $logo_hex_color", 0, 1, 'C');
         $pdf->Cell(0, 50, $product_name, 0, 1, 'C');
+=======
+      $pdf->SetFont('Arial', 'B', 25);
+    // **Add 25px margin before displaying the product name**
+    $marginTopPx = 135;
+    $marginTopMm = pxToMm($marginTopPx); // Convert pixels to mm
+    $pdf->Ln($marginTopMm); // Add vertical space
+    
+    // Display product name
+    $pdf->Cell(0, 25, $product_name, 0, 1, 'C');
+
+        
+        
+        
+>>>>>>> c38e2af (updated code)
         
    
         
@@ -395,8 +448,42 @@ while ($product = $products->fetch_assoc()) {
 if ($template) {
     $pdf->AddPage();
     $pdf->Image($template['second_template'], 0, 5, $page_width, 0);
+<<<<<<< HEAD
     
 }
 
+=======
+
+    // Ensure the uploaded logo exists before adding
+    if (file_exists($logo_path)) {
+        // **Set width to 120px and auto height while keeping aspect ratio**
+        $logoWidthPx = 500; // Fixed width in pixels
+        list($originalLogoWidth, $originalLogoHeight) = getimagesize($logo_path);
+        $logoAspectRatio = $originalLogoWidth / $originalLogoHeight;
+        $logoHeightPx = $logoWidthPx / $logoAspectRatio; // Auto height to maintain aspect ratio
+
+        // Convert pixels to mm
+        $logoWidthMm = pxToMm($logoWidthPx);
+        $logoHeightMm = pxToMm($logoHeightPx);
+
+        // **Set Position (25px margin from top & right)**
+        $marginPx = 350; // Margin in pixels
+        $marginMm = pxToMm($marginPx); // Convert margin from px to mm
+
+        $logoX_top_right = $page_width - $logoWidthMm - $marginMm; // Right margin
+        $logoY_top_right = $marginMm; // Top margin
+
+        // **Add the same logo to the top-right of final template**
+        $pdf->Image($logo_path, $logoX_top_right, $logoY_top_right, $logoWidthMm, $logoHeightMm);
+
+        // Debugging: Log the exact position
+        error_log("Logo placed at Top-Right of Final Template: X = $logoX_top_right, Y = $logoY_top_right, Width = $logoWidthMm, Height = $logoHeightMm");
+    } else {
+        error_log("Error: Logo file not found at $logo_path");
+    }
+}
+
+
+>>>>>>> c38e2af (updated code)
 // Output the PDF
 $pdf->Output('I', 'output.pdf');

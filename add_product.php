@@ -22,7 +22,11 @@ $categories_result = $conn->query("SELECT * FROM categories");
     <style>
     #product_image {
         position: relative;
+<<<<<<< HEAD
         width: 500px;
+=======
+        width: 650px;
+>>>>>>> c38e2af (updated code)
         height: auto;
         margin-top: 20px;
     }
@@ -71,7 +75,12 @@ $categories_result = $conn->query("SELECT * FROM categories");
 </head>
 
 <body style="font-family: Arial, sans-serif; background-color: #f4f4f9; color: #333;">
+<<<<<<< HEAD
     <div style="max-width: 800px; margin: 50px auto; background-color: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);">
+=======
+    <div
+        style="max-width: 800px; margin: 50px auto; background-color: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);">
+>>>>>>> c38e2af (updated code)
         <h1 style="text-align: center; color: #4CAF50;">Add New Product</h1>
 
         <form action="save_product.php" method="POST" enctype="multipart/form-data" style="font-size: 16px;">
@@ -107,12 +116,20 @@ $categories_result = $conn->query("SELECT * FROM categories");
             </div>
 
             <div style="margin-bottom: 15px; text-align: center;">
+<<<<<<< HEAD
                 <div id="product_image" style="position: relative; width: 500px; height: auto;">
+=======
+                <div id="product_image" style="position: relative; width: 650px; height: auto;">
+>>>>>>> c38e2af (updated code)
                     <img id="featured_image_preview" src="#" alt="Product Image" style="width: 650px; height: auto;">
                     <img id="logo_preview" src="uploads/sample_logo.png" alt="Logo Preview"
                         style="position: absolute; width: 120px; height: auto; cursor: pointer;">
                 </div>
+<<<<<<< HEAD
                 
+=======
+
+>>>>>>> c38e2af (updated code)
                 <!--<label for="logo_width" style="font-weight: bold;">Logo Width (px):</label>-->
                 <!--<input type="number" id="logo_width" placeholder="e.g., 150" min="10"-->
                 <!--    style="width: 100%; padding: 10px; border-radius: 5px; margin-top: 10px;">-->
@@ -157,6 +174,7 @@ $categories_result = $conn->query("SELECT * FROM categories");
         </form>
 
 
+<<<<<<< HEAD
     <script>
     $(document).ready(function() {
         // Initialize logo data
@@ -319,6 +337,76 @@ $categories_result = $conn->query("SELECT * FROM categories");
                 const height = $(this).val();
                 const width = $('#logo_width').val();
                 logoPreview.css({ height: `${height}px`, width: width ? `${width}px` : 'auto' });
+=======
+        <script>
+        $(document).ready(function() {
+            // Initialize logo data
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            const logoImg = document.getElementById('logo_preview');
+            let logoData = {
+                position: {
+                    top: 0,
+                    left: 0
+                },
+                scale: 1,
+                angle: 0
+            };
+
+
+            function applyColorToLogo(hexColor) {
+                canvas.width = logoImg.naturalWidth;
+                canvas.height = logoImg.naturalHeight;
+
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                ctx.drawImage(logoImg, 0, 0);
+
+                const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                const color = hexToRgb(hexColor);
+
+                for (let i = 0; i < imgData.data.length; i += 4) {
+                    const alpha = imgData.data[i + 3];
+                    if (alpha > 0) {
+                        imgData.data[i] = color.r;
+                        imgData.data[i + 1] = color.g;
+                        imgData.data[i + 2] = color.b;
+                    }
+                }
+
+                ctx.putImageData(imgData, 0, 0);
+                $('#logo_preview').attr('src', canvas.toDataURL());
+            }
+
+            function hexToRgb(hex) {
+                const bigint = parseInt(hex.slice(1), 16);
+                return {
+                    r: (bigint >> 16) & 255,
+                    g: (bigint >> 8) & 255,
+                    b: bigint & 255,
+                };
+            }
+
+            $('#logo_color_picker').on('input', function() {
+                const color = $(this).val();
+                $('#logo_hex_input').val(color);
+                applyColorToLogo(color);
+            });
+
+            $('#logo_hex_input').on('input', function() {
+                const hexColor = $(this).val();
+                if (/^#[0-9A-Fa-f]{6}$/.test(hexColor)) {
+                    $('#logo_color_picker').val(hexColor);
+                    applyColorToLogo(hexColor);
+                }
+            });
+
+
+
+            // Update the hidden input field when color changes
+            $('#logo_color_picker, #logo_hex_input').on('input', function() {
+                const hexColor = $('#logo_hex_input').val();
+                $('#hex_color').val(hexColor); // Set the color to the hidden input field
+>>>>>>> c38e2af (updated code)
             });
 
             // Handle featured image preview
@@ -332,8 +420,116 @@ $categories_result = $conn->query("SELECT * FROM categories");
                 reader.readAsDataURL(this.files[0]);
             });
 
+<<<<<<< HEAD
     });
     </script>
+=======
+            // Make the logo draggable within the container
+            $('#logo_preview').draggable({
+                containment: '#product_image',
+                stop: function(event, ui) {
+                    // Calculate position relative to the container
+                    const container = $('#product_image');
+                    const containerOffset = container.offset();
+                    const logoOffset = $(this).offset();
+
+                    const containerWidth = container.width();
+                    const containerHeight = container.height();
+                    const topPercent = ((logoOffset.top - containerOffset.top) / containerHeight) *
+                        100;
+                    const leftPercent = ((logoOffset.left - containerOffset.left) /
+                            containerWidth) *
+                        100;
+
+                    // Update logoData with clamped values
+                    logoData.position.top = Math.min(Math.max(topPercent, 0), 100).toFixed(2);
+                    logoData.position.left = Math.min(Math.max(leftPercent, 0), 100).toFixed(2);
+
+                    logoData.position.top = $(this).css('top');
+                    logoData.position.left = $(this).css('left');
+
+                    // Update hidden input with logo position
+                    $('#logo_position').val(JSON.stringify(logoData.position));
+                }
+            });
+
+            // Apply branding effect
+            $('#branding_option').on('change', function() {
+                const selectedEffect = $(this).val();
+                $('#logo_preview').attr('class', selectedEffect);
+            });
+
+            // Update logo size using slider
+            $('#logo_size').on('input', function() {
+                const newSize = $(this).val();
+                $('#logo_preview').css({
+                    width: `${newSize}px`, // Corrected with backticks for string interpolation
+                    height: 'auto',
+                });
+                // Update scale in logoData
+                logoData.scale = newSize / 120; // Assuming 120 is the default size
+                $('#logo_scale').val(logoData.scale);
+            });
+
+            // Update logo rotation using slider
+            $('#logo_rotation').on('input', function() {
+                const newAngle = $(this).val();
+                $('#logo_preview').css('transform',
+                    `rotate(${newAngle}deg)`); // Corrected with backticks for string interpolation
+
+                // Update rotation in logoData
+                logoData.angle = newAngle;
+                $('#logo_angle').val(logoData.angle);
+            });
+
+            // Save all logo data before form submission
+            $('form').on('submit', function() {
+                const logoStyles = JSON.stringify({
+                    position: logoData.position,
+                    scale: logoData.scale,
+                    rotation: logoData.angle,
+                });
+
+                $('#hex_color').val($('#logo_hex_input').val());
+                $('#hidden_logo_width').val($('#logo_width').val());
+                $('#hidden_logo_height').val($('#logo_height').val());
+                $('#logo_styles').val(logoStyles); // Set the hidden input value
+            });
+
+            const logoPreview = $('#logo_preview');
+
+            $('#logo_width').on('input', function() {
+                const width = $(this).val();
+                const height = $('#logo_height').val();
+                logoPreview.css({
+                    width: `${width}px`,
+                    height: height ? `${height}px` : 'auto'
+                });
+            });
+
+            $('#logo_height').on('input', function() {
+                const height = $(this).val();
+                const width = $('#logo_width').val();
+                logoPreview.css({
+                    height: `${height}px`,
+                    width: width ? `${width}px` : 'auto'
+                });
+            });
+
+            // Handle featured image preview
+            $('#featured_image').on('change', function() {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    $('#featured_image_preview').attr('src', e.target.result).show();
+                    $('#product_image').show();
+                    $('#logo_preview').show();
+                };
+                reader.readAsDataURL(this.files[0]);
+            });
+
+        });
+        </script>
+>>>>>>> c38e2af (updated code)
 
 </body>
 
